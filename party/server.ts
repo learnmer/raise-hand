@@ -1,50 +1,142 @@
 import type * as Party from "partykit/server";
+import {
+  raiseHandTimeoutMilliseconds,
+  type HandState,
+  type LowerHandClientMessage,
+  type RaiseHandClientMessage,
+  type User,
+  type UserListServerMessage,
+} from "../message";
 
+const HAND_STATE = "hand-state";
 export default class Server implements Party.Server {
-  count = 0;
+  options: Party.ServerOptions = { hibernate: true };
 
   constructor(readonly room: Party.Room) {}
 
-  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    // A websocket just connected!
-    console.log(
-      `Connected:
-  id: ${conn.id}
-  room: ${this.room.id}
-  url: ${new URL(ctx.request.url).pathname}`
-    );
+  onStart(): void | Promise<void> {}
 
-    // send the current count to the new client
-    conn.send(this.count.toString());
+  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+    console.info(`onConnect from ${getConnectionUsername(conn)}`);
+    this.brodcastUserList();
   }
 
-  onMessage(message: string, sender: Party.Connection) {
-    // let's log the message
-    console.log(`connection ${sender.id} sent message: ${message}`);
-    // we could use a more sophisticated protocol here, such as JSON
-    // in the message data, but for simplicity we just use a string
-    if (message === "increment") {
-      this.increment();
+  async onMessage(message: string, sender: Party.Connection) {
+    console.info(`got message from ${getConnectionUsername(sender)}`, message);
+    const msg: LowerHandClientMessage | RaiseHandClientMessage | any =
+      JSON.parse(message);
+    if (msg.type === "raise-hand") {
+      await this.room.storage.transaction<boolean>(async (txn) => {
+        const handState = await txn.get<HandState>(HAND_STATE);
+        if (
+          handState === undefined ||
+          handState.timestampMilliseconds <
+            Date.now() - raiseHandTimeoutMilliseconds
+        ) {
+          await txn.put<HandState>(HAND_STATE, {
+            username: getConnectionUsername(sender),
+            timestampMilliseconds: Date.now(),
+          });
+          await txn.setAlarm(Date.now() + raiseHandTimeoutMilliseconds + 250);
+          console.info("raise hand success", getConnectionUsername(sender));
+          return true;
+        }
+        console.info("raise hand false", getConnectionUsername(sender));
+        return false;
+      });
+    } else if (msg.type === "lower-hand") {
+      await this.room.storage.transaction<boolean>(async (txn) => {
+        const handState = await txn.get<HandState>(HAND_STATE);
+        if (
+          handState !== undefined &&
+          handState.username === getConnectionUsername(sender) &&
+          handState.timestampMilliseconds >
+            Date.now() - raiseHandTimeoutMilliseconds
+        ) {
+          await txn.put<HandState>(HAND_STATE, {
+            username: getConnectionUsername(sender),
+            timestampMilliseconds: 0,
+          });
+          console.info("lower hand success", getConnectionUsername(sender));
+          return true;
+        }
+        console.info("lower hand false", getConnectionUsername(sender));
+        return false;
+      });
+    } else {
+      console.info("received invalid message from client");
     }
+    await this.broadcastHandState();
   }
 
   onRequest(req: Party.Request) {
-    // response to any HTTP request (any method, any path) with the current
-    // count. This allows us to use SSR to give components an initial value
+    console.info("received onRequest");
+    return new Response(JSON.stringify({}), { status: 404 });
+  }
 
-    // if the request is a POST, increment the count
-    if (req.method === "POST") {
-      this.increment();
+  onClose(connection: Party.Connection<unknown>): void | Promise<void> {
+    console.info(`onClose from ${getConnectionUsername(conn)}`);
+    this.brodcastUserList();
+  }
+
+  onError(
+    connection: Party.Connection<unknown>,
+    error: Error
+  ): void | Promise<void> {
+    console.info(`onError from ${getConnectionUsername(conn)}`);
+    this.brodcastUserList();
+  }
+
+  async onAlarm(): Promise<void> {
+    console.info("running onAlarm");
+    await this.room.storage.transaction(async (txn) => {
+      const handState = await txn.get<HandState>(HAND_STATE);
+      if (
+        handState !== undefined &&
+        handState.timestampMilliseconds <
+          Date.now() - raiseHandTimeoutMilliseconds
+      ) {
+        await txn.put<HandState>(HAND_STATE, {
+          username: handState.username,
+          timestampMilliseconds: 0,
+        });
+      }
+    });
+  }
+
+  brodcastUserList(): void {
+    console.info(`broadcasting user list`);
+    const users: User[] = [];
+    for (const conn of this.room.getConnections()) {
+      users.push({ username: getConnectionUsername(conn) });
     }
-
-    return new Response(this.count.toString());
+    const message: UserListServerMessage = {
+      type: "user-list",
+      payload: {
+        users,
+      },
+    };
+    for (const conn of this.room.getConnections()) {
+      conn.send(JSON.stringify(message));
+    }
+    console.info(`broadcasted user list`, message);
   }
 
-  increment() {
-    this.count = (this.count + 1) % 100;
-    // broadcast the new count to all clients
-    this.room.broadcast(this.count.toString(), []);
+  async broadcastHandState(): Promise<void> {
+    console.info(`broadcasting hand state`);
+    const handState = await this.room.storage.get<HandState>(HAND_STATE);
+    if (handState) {
+      for (const conn of this.room.getConnections()) {
+        conn.send(JSON.stringify(handState));
+      }
+    }
+    console.info(`broadcasted hand state`, handState);
   }
+}
+
+function getConnectionUsername(conn: Party.Connection): string {
+  const url = new URL(conn.uri);
+  return url.searchParams.get("username") ?? "";
 }
 
 Server satisfies Party.Worker;
