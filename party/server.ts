@@ -16,9 +16,10 @@ export default class Server implements Party.Server {
 
   onStart(): void | Promise<void> {}
 
-  onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
+  async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
     console.info(`onConnect from ${getConnectionUsername(conn)}`);
     this.brodcastUserList();
+    this.broadcastHandState();
   }
 
   async onMessage(message: string, sender: Party.Connection) {
@@ -102,6 +103,7 @@ export default class Server implements Party.Server {
         });
       }
     });
+    await this.broadcastHandState();
   }
 
   brodcastUserList(): void {
