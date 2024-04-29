@@ -1,0 +1,10 @@
+{
+  "$schema": "https://www.partykit.io/schema.json",
+  "name": "raise-hand",
+  "main": "party/server.ts",
+  "compatibilityDate": "2024-04-29",
+  "serve": {
+    "path": "public",
+    "build": "app/client.tsx"
+  }
+}
