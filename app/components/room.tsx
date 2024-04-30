@@ -1,7 +1,15 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useAppState } from "./app-state";
 import usePartySocket from "partysocket/react";
-import { raiseHandTimeoutMilliseconds, type ServerMessage } from "message";
+import {
+  raiseHandTimeoutMilliseconds,
+  type LowerHandClientMessage,
+  type ServerMessage,
+} from "message";
+import { motion, type Transition } from "framer-motion";
+import { cn } from "app/lib/utils";
+import { Button } from "./ui/button";
+import { ArrowDown, ArrowUp, Hand } from "lucide-react";
 
 export function Room(): ReactNode {
   const { appState, setUsers, setHandState } = useAppState();
@@ -41,6 +49,7 @@ export function Room(): ReactNode {
     appState.handState.timestampMilliseconds !== 0;
   const isAnyUserRaisingHand =
     appState.handState && appState.handState.timestampMilliseconds !== 0;
+  const transition: Transition = { duration: 0.15 };
   const socket = usePartySocket({
     room: appState.roomId,
     query: { username: appState.username },
@@ -65,6 +74,132 @@ export function Room(): ReactNode {
     },
   });
   return (
-    <div className="flex items-stretch justify-center w-full h-full flex-col space-y-4"></div>
+    <div className="flex items-stretch justify-center w-full h-full flex-col space-y-4">
+      <div className="flex items-stretch justify-center w-full h-full flex-col flex-1">
+        <div className="flex flex-row justify-items-center items-center justify-center space-x-2 flex-1 flex-wrap">
+          {appState.users.map((user) => (
+            <motion.div
+              key={user.username}
+              layoutId={user.username}
+              style={{ backgroundColor: user.color }}
+              className={cn(
+                "text-white p-4 min-h-6 min-w-16 rounded-full text-center",
+                appState.username === user.username &&
+                  "border-black dark:border-white border-2 border-dashed",
+                appState.handState?.username === user.username &&
+                  appState.handState?.timestampMilliseconds !== 0 &&
+                  "text-2xl"
+              )}
+            >
+              {user.username}
+            </motion.div>
+          ))}
+        </div>
+      </div>
+      {isCurrentUserRaisingHand ? (
+        <Button
+          className="text-lg min-h-36"
+          onClick={() => {
+            socket.send(
+              JSON.stringify({ type: "lower-hand" } as LowerHandClientMessage)
+            );
+          }}
+        >
+          <Hand className="h-6 w-6" />
+          <ArrowDown className="mr-2 h-6 w-6" />
+          Lower Hand
+        </Button>
+      ) : isAnyUserRaisingHand ? (
+        <Button disabled className="text-lg min-h-36">
+          <Hand className="h-6 w-6" />
+          <ArrowUp className="mr-2 h-6 w-6" />
+          Raise Hand
+        </Button>
+      ) : (
+        <Button
+          className="text-lg min-h-36"
+          onClick={() => {
+            socket.send(
+              JSON.stringify({ type: "raise-hand" } as RaiseHandClientMessage)
+            );
+          }}
+        >
+          <Hand className="h-6 w-6" />
+          <ArrowUp className="mr-2 h-6 w-6" />
+          Raise Hand
+        </Button>
+      )}
+    </div>
   );
 }
+
+const background = {
+  position: "fixed",
+  top: "0",
+  left: "0",
+  bottom: "0",
+  right: "0",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  background: "#ccc",
+};
+
+const container = {
+  backgroundColor: "#eeeeee",
+  borderRadius: "25px",
+  width: "600px",
+  height: "600px",
+  margin: "0",
+  padding: "0 20px 20px 0",
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "space-between",
+  alignItems: "space-between",
+  listStyle: "none",
+};
+
+const item = {
+  padding: "20px",
+  cursor: "pointer",
+  margin: "20px 0 0 20px",
+  flex: "1 1 90px",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+};
+
+const overlay = {
+  background: "rgba(0,0,0,0.6)",
+  position: "fixed",
+  top: "0",
+  left: "0",
+  bottom: "0",
+  right: "0",
+};
+
+const singleImageContainer: CSSProperties = {
+  position: "absolute",
+  top: "0",
+  left: "0",
+  bottom: "0",
+  right: "0",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  pointerEvents: "none",
+};
+
+const singleImage = {
+  width: "500px",
+  height: "300px",
+  padding: 50,
+};
+
+const child = {
+  width: 50,
+  height: 50,
+  borderRadius: 25,
+  backgroundColor: "white",
+  opacity: 0.5,
+};
