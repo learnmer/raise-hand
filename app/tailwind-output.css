@@ -672,12 +672,20 @@ body {
   margin-left: auto;
 }
 
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
 .mr-4 {
   margin-right: 1rem;
 }
 
 .mr-6 {
   margin-right: 1.5rem;
+}
+
+.inline-block {
+  display: inline-block;
 }
 
 .flex {
@@ -728,6 +736,10 @@ body {
   height: 1.2rem;
 }
 
+.h-full {
+  height: 100%;
+}
+
 .h-px {
   height: 1px;
 }
@@ -768,6 +780,14 @@ body {
   max-width: 1536px;
 }
 
+.max-w-screen-md {
+  max-width: 768px;
+}
+
+.max-w-screen-sm {
+  max-width: 640px;
+}
+
 .flex-1 {
   flex: 1 1 0%;
 }
@@ -804,8 +824,20 @@ body {
           user-select: none;
 }
 
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
 .items-center {
   align-items: center;
+}
+
+.items-stretch {
+  align-items: stretch;
 }
 
 .justify-end {
@@ -814,6 +846,10 @@ body {
 
 .justify-center {
   justify-content: center;
+}
+
+.justify-stretch {
+  justify-content: stretch;
 }
 
 .space-x-2 > :not([hidden]) ~ :not([hidden]) {
@@ -826,6 +862,12 @@ body {
   --tw-space-x-reverse: 0;
   margin-right: calc(1rem * var(--tw-space-x-reverse));
   margin-left: calc(1rem * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.space-y-4 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(1rem * var(--tw-space-y-reverse));
 }
 
 .overflow-hidden {
@@ -944,6 +986,11 @@ body {
   line-height: 1.25rem;
 }
 
+.text-xl {
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+}
+
 .text-xs {
   font-size: 0.75rem;
   line-height: 1rem;
@@ -1053,6 +1100,10 @@ body {
     opacity: var(--tw-exit-opacity, 1);
     transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), var(--tw-exit-scale, 1)) rotate(var(--tw-exit-rotate, 0));
   }
+}
+
+.main-section {
+  height: calc(100vh - 3.5rem);
 }
 
 .file\:border-0::file-selector-button {
@@ -1238,11 +1289,5 @@ body {
 @media (min-width: 640px) {
   .sm\:inline-block {
     display: inline-block;
-  }
-}
-
-@media (min-width: 768px) {
-  .md\:flex {
-    display: flex;
   }
 }

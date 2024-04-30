@@ -11,6 +11,7 @@
     "@radix-ui/react-slot": "^1.0.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "framer-motion": "^11.1.7",
     "lucide-react": "^0.376.0",
     "partysocket": "^1.0.1",
     "random-words": "^2.0.1",

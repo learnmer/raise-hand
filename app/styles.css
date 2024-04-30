@@ -29,3 +29,7 @@ h6 {
 #app {
   padding: 1rem;
 }
+
+* {
+  overscroll-behavior: none;
+}

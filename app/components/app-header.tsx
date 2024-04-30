@@ -25,7 +25,7 @@ export function AppHeader({ roomId }: AppHeaderProps): ReactNode {
             <LogOut className="h-4 w-4" />
           </Button>
         ) : null}
-        <div className="mr-4 hidden md:flex items-center">
+        <div className="mr-4 flex items-center">
           {appState.inRoom ? (
             <span className="hidden font-bold sm:inline-block mr-6 space-x-2">
               {appState.roomId}
@@ -36,7 +36,7 @@ export function AppHeader({ roomId }: AppHeaderProps): ReactNode {
               className="mr-6 flex items-center space-x-2"
               rel="noopener"
             >
-              <span className="hidden font-bold sm:inline-block">Learnmer</span>
+              <span className="font-bold inline-block">Learnmer</span>
             </a>
           )}
         </div>

@@ -76,15 +76,12 @@ export default class Server implements Party.Server {
     return new Response(JSON.stringify({}), { status: 404 });
   }
 
-  onClose(connection: Party.Connection<unknown>): void | Promise<void> {
+  onClose(conn: Party.Connection<unknown>): void | Promise<void> {
     console.info(`onClose from ${getConnectionUsername(conn)}`);
     this.brodcastUserList();
   }
 
-  onError(
-    connection: Party.Connection<unknown>,
-    error: Error
-  ): void | Promise<void> {
+  onError(conn: Party.Connection<unknown>, error: Error): void | Promise<void> {
     console.info(`onError from ${getConnectionUsername(conn)}`);
     this.brodcastUserList();
   }
