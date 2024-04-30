@@ -3,18 +3,26 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "partykit dev --live",
-    "deploy": "partykit deploy"
+    "dev": "concurrently \"npx tailwindcss -i ./app/global.css -o ./app/tailwind-output.css --watch\" \"partykit dev --live\"",
+    "deploy": "npx tailwindcss -i ./app/global.css -o ./app/tailwind-output.css && partykit deploy --domain raise-hand.learnmer.com"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.0.2",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.376.0",
     "partysocket": "^1.0.1",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^2.3.0",
+    "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
+    "concurrently": "^8.2.2",
     "partykit": "^0.0.100",
+    "tailwindcss": "^3.4.3",
     "typescript": "^5.4.2"
   }
 }

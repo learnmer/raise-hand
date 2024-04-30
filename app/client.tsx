@@ -1,4 +1,5 @@
 import "./styles.css";
+import "./tailwind-output.css";
 import { createRoot } from "react-dom/client";
 import Counter from "./components/Counter";
 

@@ -1,6 +1,7 @@
 import type * as Party from "partykit/server";
 import {
   raiseHandTimeoutMilliseconds,
+  type BroadcastRaiseHandServerMessage,
   type HandState,
   type LowerHandClientMessage,
   type RaiseHandClientMessage,
@@ -19,7 +20,7 @@ export default class Server implements Party.Server {
   async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
     console.info(`onConnect from ${getConnectionUsername(conn)}`);
     this.brodcastUserList();
-    this.broadcastHandState();
+    await this.broadcastHandState();
   }
 
   async onMessage(message: string, sender: Party.Connection) {
@@ -128,8 +129,12 @@ export default class Server implements Party.Server {
     console.info(`broadcasting hand state`);
     const handState = await this.room.storage.get<HandState>(HAND_STATE);
     if (handState) {
+      const msg: BroadcastRaiseHandServerMessage = {
+        type: "broadcast-raise-hand",
+        payload: handState,
+      };
       for (const conn of this.room.getConnections()) {
-        conn.send(JSON.stringify(handState));
+        conn.send(JSON.stringify(msg));
       }
     }
     console.info(`broadcasted hand state`, handState);

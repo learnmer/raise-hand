@@ -1,3 +1,3 @@
-# Raise your hand virtually in group interviews
+# Raise Hand
 
-Implementing the suggestion of "holding a rubix cube to signal who will take the question" as found in [this Reddit thread](https://www.reddit.com/r/ycombinator/comments/1cc9pa9/want_a_mock_interview_w23_founder_did_15_mocks/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button) but virtually. Hopefully we will get a chance to use it.
+Whoever raised their hand faster wins.
