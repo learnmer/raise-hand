@@ -4,6 +4,7 @@ import usePartySocket from "partysocket/react";
 import {
   raiseHandTimeoutMilliseconds,
   type LowerHandClientMessage,
+  type RaiseHandClientMessage,
   type ServerMessage,
 } from "message";
 import { AnimatePresence, motion, type Transition } from "framer-motion";
@@ -175,74 +176,3 @@ export function Room(): ReactNode {
     </div>
   );
 }
-
-const background = {
-  position: "fixed",
-  top: "0",
-  left: "0",
-  bottom: "0",
-  right: "0",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#ccc",
-};
-
-const container = {
-  backgroundColor: "#eeeeee",
-  borderRadius: "25px",
-  width: "600px",
-  height: "600px",
-  margin: "0",
-  padding: "0 20px 20px 0",
-  display: "flex",
-  flexWrap: "wrap",
-  justifyContent: "space-between",
-  alignItems: "space-between",
-  listStyle: "none",
-};
-
-const item = {
-  padding: "20px",
-  cursor: "pointer",
-  margin: "20px 0 0 20px",
-  flex: "1 1 90px",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const overlay = {
-  background: "rgba(0,0,0,0.6)",
-  position: "fixed",
-  top: "0",
-  left: "0",
-  bottom: "0",
-  right: "0",
-};
-
-const singleImageContainer: CSSProperties = {
-  position: "absolute",
-  top: "0",
-  left: "0",
-  bottom: "0",
-  right: "0",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  pointerEvents: "none",
-};
-
-const singleImage = {
-  width: "500px",
-  height: "300px",
-  padding: 50,
-};
-
-const child = {
-  width: 50,
-  height: 50,
-  borderRadius: 25,
-  backgroundColor: "white",
-  opacity: 0.5,
-};
