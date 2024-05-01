@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "concurrently \"npx tailwindcss -i ./app/globals.css -o ./app/tailwind-output.css --watch\" \"partykit dev --live\"",
+    "dev": "concurrently --kill-others \"npx tailwindcss -i ./app/globals.css -o ./app/tailwind-output.css --watch\" \"partykit dev --live\"",
     "deploy": "npx tailwindcss -i ./app/global.css -o ./app/tailwind-output.css && partykit deploy --domain raise-hand.learnmer.com"
   },
   "dependencies": {

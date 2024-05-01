@@ -6,7 +6,7 @@ import {
   type LowerHandClientMessage,
   type ServerMessage,
 } from "message";
-import { motion, type Transition } from "framer-motion";
+import { AnimatePresence, motion, type Transition } from "framer-motion";
 import { cn } from "app/lib/utils";
 import { Button } from "./ui/button";
 import { ArrowDown, ArrowUp, Hand } from "lucide-react";
@@ -26,8 +26,10 @@ export function Room(): ReactNode {
           Date.now() - raiseHandTimeoutMilliseconds
       ) {
         const remainingSeconds =
-          (Date.now() -
-            (clockSkewFromServer + appState.handState.timestampMilliseconds)) /
+          (raiseHandTimeoutMilliseconds -
+            (Date.now() -
+              (clockSkewFromServer +
+                appState.handState.timestampMilliseconds))) /
           1000;
         setRemainingHandRaisedSeconds(remainingSeconds.toFixed(1));
       } else {
@@ -49,7 +51,6 @@ export function Room(): ReactNode {
     appState.handState.timestampMilliseconds !== 0;
   const isAnyUserRaisingHand =
     appState.handState && appState.handState.timestampMilliseconds !== 0;
-  const transition: Transition = { duration: 0.15 };
   const socket = usePartySocket({
     room: appState.roomId,
     query: { username: appState.username },
@@ -75,26 +76,68 @@ export function Room(): ReactNode {
   });
   return (
     <div className="flex items-stretch justify-center w-full h-full flex-col space-y-4">
-      <div className="flex items-stretch justify-center w-full h-full flex-col flex-1">
-        <div className="flex flex-row justify-items-center items-center justify-center space-x-2 flex-1 flex-wrap">
-          {appState.users.map((user) => (
-            <motion.div
-              key={user.username}
-              layoutId={user.username}
-              style={{ backgroundColor: user.color }}
-              className={cn(
-                "text-white p-4 min-h-6 min-w-16 rounded-full text-center",
-                appState.username === user.username &&
-                  "border-black dark:border-white border-2 border-dashed",
-                appState.handState?.username === user.username &&
-                  appState.handState?.timestampMilliseconds !== 0 &&
-                  "text-2xl"
-              )}
-            >
-              {user.username}
-            </motion.div>
-          ))}
+      <div className="relative w-full h-full">
+        <div className="flex items-stretch justify-center w-full h-full flex-col flex-1">
+          <div className="flex flex-row justify-items-center items-center justify-center space-x-2 flex-1 flex-wrap">
+            {appState.users.map((user) => (
+              <motion.div
+                key={user.username}
+                layoutId={user.username}
+                style={{ backgroundColor: user.color }}
+                className={cn(
+                  "text-white p-4 min-h-6 min-w-16 rounded-full text-center",
+                  appState.username === user.username &&
+                    "border-black dark:border-white border-2 border-dashed"
+                )}
+              >
+                {user.username}
+              </motion.div>
+            ))}
+          </div>
         </div>
+        {(errorMessage ?? null) && (
+          <div className="top-0 w-full absolute px-2 bg-red-500 text-center">
+            {errorMessage}
+          </div>
+        )}
+        <AnimatePresence>
+          {isAnyUserRaisingHand && (
+            <>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.5 }}
+                exit={{ opacity: 0 }}
+                className="absolute top-0 bottom-0 left-0 right-0 bg-black"
+              ></motion.div>
+              <motion.div
+                layoutId={appState.handState?.username ?? ""}
+                style={
+                  appState.users.find(
+                    (u) => u.username === appState.handState?.username
+                  )
+                    ? {
+                        backgroundColor: appState.users.find(
+                          (u) => u.username === appState.handState?.username
+                        )?.color,
+                      }
+                    : {}
+                }
+                className={cn(
+                  "absolute inset-6 rounded-3xl ",
+                  appState.handState?.username === appState.username &&
+                    "border-black dark:border-white border-4 border-dashed"
+                )}
+              >
+                <div className="flex items-center w-full h-full text-center justify-center text-white text-3xl">
+                  {appState.handState?.username ?? ""}
+                </div>
+                <div className="absolute top-1 right-1 p-2">
+                  {remainingHandRaisedSeconds}
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
       {isCurrentUserRaisingHand ? (
         <Button

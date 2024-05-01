@@ -10,7 +10,7 @@ export function Lobby(): ReactNode {
   const canEnterRoom =
     appState.roomId.length > 0 && appState.username.length > 0;
   return (
-    <div className="flex items-center justify-center w-full h-full flex-col space-y-4">
+    <div className="flex items-center justify-center w-full h-full flex-col space-y-4 px-2">
       <div className="text-xl">Raise your hand virtually. Be fast.</div>
       <div className="flex flex-row items-center justify-stretch w-full max-w-screen-md space-x-4">
         <Input
